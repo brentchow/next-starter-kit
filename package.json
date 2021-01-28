@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@styled-system/css": "^5.1.5",
+    "firebase": "^8.2.4",
     "lodash": "^4.17.15",
     "next": "9.4.4",
     "prop-types": "^15.7.2",
