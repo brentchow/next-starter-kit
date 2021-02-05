@@ -1,16 +1,28 @@
-import * as firebase from 'firebase';
-import getConfig from 'next/config';
+import firebase from 'firebase/app';
+import 'firebase/auth';
 
-const {serverRuntimeConfig} = getConfig();
-const {
-  FIREBASE_API_KEY,
-  FIREBASE_APP_ID,
-  FIREBASE_AUTH_DOMAIN,
-  FIREBASE_DATABASE_URL,
-  FIREBASE_MESSAGING_SENDER_ID,
-  FIREBASE_PROJECT_ID,
-  FIREBASE_STORAGE_BUCKET,
-} = serverRuntimeConfig;
+/**
+ * Map Firebase `User` response to just grab user properties.
+ * @param {firebase.User} user - Firebase User response (https://firebase.google.com/docs/reference/js/firebase.User)
+ * @returns User properties.
+ */
+function mapUserProperties(user) {
+  return ({
+    displayName: user.displayName,
+    email: user.email,
+    emailVerified: user.emailVerified,
+    isAnonymous: user.isAnonymous,
+    metadata: user.metadata,
+    multiFactor: user.multiFactor,
+    phoneNumber: user.phoneNumber,
+    photoURL: user.photoURL,
+    providerData: user.providerData,
+    providerId: user.providerId,
+    refreshToken: user.refreshToken,
+    tenantId: user.tenantId,
+    uid: user.uid,
+  });
+}
 
 /**
  * Firebase Configuration parameters.
@@ -18,45 +30,39 @@ const {
  * @type Object
  */
 export const firebaseConfig = {
-  apiKey: FIREBASE_API_KEY,
-  appId: FIREBASE_APP_ID,
-  authDomain: FIREBASE_AUTH_DOMAIN,
-  databaseURL: FIREBASE_DATABASE_URL,
-  messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
-  projectId: FIREBASE_PROJECT_ID,
-  storageBucket: FIREBASE_STORAGE_BUCKET,
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
 };
 
 /**
  * Initialize Firebase app instance.
- * @param {string} [name] - Optional name of the app to initialize. If no name is provided, the
- * default is "[DEFAULT]".
  * @returns An array of initialized apps.
  */
-export function initFirebase(name) {
-  if (!firebase.apps.length) {
-    return [firebase.initializeApp(firebaseConfig, name)];
+export function firebaseInit() {
+  if (firebase.apps.length) {
+    return firebase.apps;
   }
 
-  return firebase.apps;
+  return [firebase.initializeApp(firebaseConfig)];
 }
 
 /**
- * Set an observer to listen for authentication state changes. It will dispatch a provided sign in
- * or sign out action.
- * @param {()} dispatchSignIn - Dispatch action for a user sign in. Provides the user data to the
- * dispatch payload.
+ * Set an observer to listen for authentication state changes. It will dispatch a provided sign in or sign out action.
+ * @param {({user})} dispatchSignIn - Dispatch action for a user sign in. Provides user data to the dispatch payload.
  * @param {()} dispatchSignOut - Dispatch action for a user sign out.
  */
-export function onAuthStateChange(dispatchSignIn, dispatchSignOut, dispatchFirebaseInitialized) {
+export function onAuthStateChange(dispatchSignIn, dispatchSignOut) {
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
-      dispatchSignIn({user});
+      dispatchSignIn(mapUserProperties(user));
     } else {
       dispatchSignOut();
     }
-
-    dispatchFirebaseInitialized();
   });
 }
 
@@ -66,4 +72,38 @@ export function onAuthStateChange(dispatchSignIn, dispatchSignOut, dispatchFireb
  */
 export function signOut() {
   return firebase.auth().signOut();
+}
+
+/**
+ * Sign in with an email and password.
+ * @param {string} email - User's email address.
+ * @param {string} password - User's password.
+ */
+export function signInWithEmailAndPassword(email, password) {
+  return firebase.auth().signInWithEmailAndPassword(email, password)
+    .then(({user}) => ({
+      idToken: user.idToken,
+      email: user.email,
+      refreshToken: user.refreshToken,
+      expiresIn: user.expiresIn,
+      localId: user.localId,
+      registered: user.registered,
+    }));
+}
+
+/**
+ * Create a new user with an email and password.
+ * @param {string} email - User's email address.
+ * @param {string} password - User's password.
+ */
+export function signUp(email, password) {
+  return firebase.auth().createUserWithEmailAndPassword(email, password)
+    .then(({user}) => ({
+      idToken: user.idToken,
+      email: user.email,
+      refreshToken: user.refreshToken,
+      expiresIn: user.expiresIn,
+      localId: user.localId,
+      registered: user.registered,
+    }));
 }

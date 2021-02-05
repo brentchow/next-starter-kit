@@ -1,26 +1,33 @@
-import {Provider} from 'react-redux';
-import {combineReducers} from 'redux';
+import {createWrapper, HYDRATE} from 'next-redux-wrapper';
+import {combineReducers, createStore} from 'redux';
+import {composeWithDevTools} from 'redux-devtools-extension';
 
 import appReducer, {initialState as appInitialState} from './ducks/App.Duck';
 import userReducer, {initialState as userInitialState} from './ducks/User.Duck';
-import withRedux from './WithRedux';
 
 const initialState = {
   app: {...appInitialState},
   user: {...userInitialState},
 };
 
-const rootReducer = combineReducers({
+const combinedReducer = combineReducers({
   app: appReducer,
   user: userReducer,
 });
 
-/**
- * NOTE: If some pages are static and don't use this HOC since it uses getInitialProps internally
- * which prevents their optimization. Apply this HOC only to interactive pages that use Redux.
- */
-export default withRedux({
-  initialState,
-  Provider,
-  rootReducer,
-});
+const reducer = (state = initialState, action) => {
+  if (action.type === HYDRATE) {
+    const nextState = {
+      ...state,
+      ...action.payload,
+    };
+
+    return nextState;
+  }
+
+  return combinedReducer(state, action);
+};
+
+const initStore = (initState) => createStore(reducer, initState, composeWithDevTools());
+
+export default createWrapper(initStore);

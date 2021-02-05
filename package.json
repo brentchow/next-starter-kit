@@ -3,16 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "eslint ."
+    "dev": "next dev",
+    "lint": "eslint .",
+    "start": "next start"
   },
   "dependencies": {
     "@styled-system/css": "^5.1.5",
     "firebase": "^8.2.4",
     "lodash": "^4.17.15",
     "next": "9.4.4",
+    "next-redux-wrapper": "^6.0.2",
     "prop-types": "^15.7.2",
     "react": "16.13.1",
     "react-dom": "16.13.1",
@@ -21,6 +22,7 @@
     "redux": "^4.0.5",
     "redux-actions": "^2.6.5",
     "redux-define": "^1.1.1",
+    "redux-devtools-extension": "^2.13.8",
     "styled-components": "^5.1.1",
     "styled-system": "^5.1.5"
   },
