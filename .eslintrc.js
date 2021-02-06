@@ -3,10 +3,9 @@ module.exports = {
     es6: true,
     browser: true,
   },
-  'extends': [
+  extends: [
     'airbnb',
     'airbnb-base',
-    'plugin:jest/recommended',
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',
   ],
@@ -59,13 +58,13 @@ module.exports = {
     // allow `<a>` elements to not have a `href` attribute if it is wrapped in a `<Link>`
     // https://github.com/vercel/next.js/issues/5533
     'jsx-a11y/anchor-is-valid': ['error', {
-      'components': ['Link'],
-      'specialLink': ['hrefLeft', 'hrefRight'],
-      'aspects': ['invalidHref', 'preferButton']
+      components: ['Link'],
+      specialLink: ['hrefLeft', 'hrefRight'],
+      aspects: ['invalidHref', 'preferButton'],
     }],
 
     // maximum line length
-    'max-len': ['error', {'code': 120}],
+    'max-len': ['error', {code: 120}],
 
     // No more than 1 empty line in a row and the end of the file can have a max of 1 empty line.
     'no-multiple-empty-lines': ['error', {
